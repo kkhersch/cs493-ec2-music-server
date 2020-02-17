@@ -3,8 +3,11 @@ const AWS = require('aws-sdk');
 const cors = require('cors');
 
 const app = express();
-app.options('*', cors());
-
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 AWS.config.region = 'us-east-1';
 
 const s3 = new AWS.S3();
