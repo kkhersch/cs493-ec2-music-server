@@ -1,13 +1,13 @@
 const express = require('express');
 const AWS = require('aws-sdk');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 
-const credentials = new AWS.SharedIniFileCredentials({profile: 'cf-dev-herschk'});
-AWS.config.credentials = credentials;
 AWS.config.region = 'us-east-1';
 
-const s3 = new AWS.S3({ credentials: AWS.config.credentials });
+const s3 = new AWS.S3();
 
 const PORT = 1337;
 const BUCKET = 'cs493-aws-music-app'
@@ -41,7 +41,7 @@ app.get('/songs', function(req, res) {
 				insert_song(song_obj, song_name, song_url)
 			})
 		}
-	console.log(`song object has: \n${JSON.stringify(song_obj, null, 2)}`)
+	//console.log(`song object has: \n${JSON.stringify(song_obj, null, 2)}`)
 	res.send(song_obj);
 	});
 });
