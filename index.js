@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.options('*', cors());
 
 AWS.config.region = 'us-east-1';
 
