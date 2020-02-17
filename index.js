@@ -28,7 +28,7 @@ var insert_song = function(song_obj, song_name, song_url) {
 var song_obj = {}
 
 app.get('/songs', function(req, res) {
-	console.log("someone requested songs: " + JSON.stringify(req, null, 2))
+	console.log("someone requested songs: ")
 	let params = {
 		Bucket: BUCKET,
 	}
