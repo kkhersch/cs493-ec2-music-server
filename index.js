@@ -16,6 +16,8 @@ const s3 = new AWS.S3();
 
 const PORT = 1337;
 const BUCKET = 'cs493-aws-music-app'
+const dynamodb = new AWS.DynamoDB();
+const ddb_table_name = "music"
 
 app.get('/', function (req, res) {
   res.send('cs493 cloud dev music app for 24/7 lofi hip hop music to study and relax');
@@ -52,7 +54,126 @@ app.get('/songs', function(req, res) {
 	});
 });
 
+//by specific song
+app.get('/song', function(req, res) {
+	console.log("params: "+ jsonString(req.query))
 
+	let params = {
+		ExpressionAttributeValues: {
+		 ":s": {
+			 S: req.query.song
+			}
+		}, 
+		KeyConditionExpression: "pk = :s",
+		TableName: ddb_table_name
+	 };
+	dynamodb.query(params, function(ddb_err, data) {
+		if(ddb_err) {throw ddb_err}
+		else {
+			console.log("returned ddb: " + jsonString(data))
+			res.send(data.Items[0].sk.S)
+		}
+	})
+})
+
+//songs by album
+app.get('/songs/for/album', function(req, res) {
+	console.log("params: "+ jsonString(req.query))
+	let params = {
+		ExpressionAttributeValues: {
+		 ":album": {
+			 S: req.query.album
+			}
+		}, 
+		KeyConditionExpression: "pk = :album",
+		TableName: ddb_table_name
+	 };
+	dynamodb.query(params, function(ddb_err, data) {
+		if(ddb_err) {throw ddb_err}
+		else {
+			console.log("returned ddb: " + jsonString(data))
+			let songs = []
+			data.Items.forEach((song) => {
+				songs.push(song.sk.S)
+			})
+			res.send(songs)
+		}
+	})
+})
+
+//albums by artist
+app.get('/albums/for/artist', function(req, res) {
+	console.log("params: "+ jsonString(req.query))
+	let params = {
+		ExpressionAttributeValues: {
+		 ":artist": {
+			 S: req.query.artist
+			}
+		}, 
+		KeyConditionExpression: "pk = :artist",
+		TableName: ddb_table_name
+	 };
+	dynamodb.query(params, function(ddb_err, data) {
+		if(ddb_err) {throw ddb_err}
+		else {
+			console.log("returned ddb: " + jsonString(data))
+			let albums = []
+			data.Items.forEach((album) => {
+				albums.push(album.sk.S)
+			})
+			res.send(albums)
+		}
+	})
+})
+
+//artists by genre
+app.get('/artists/for/genre', function(req, res) {
+	console.log("params: "+ jsonString(req.query))
+	let params = {
+		ExpressionAttributeValues: {
+		 ":genre": {
+			 S: req.query.genre
+			}
+		}, 
+		KeyConditionExpression: "pk = :genre",
+		TableName: ddb_table_name
+	 };
+	dynamodb.query(params, function(ddb_err, data) {
+		if(ddb_err) {throw ddb_err}
+		else {
+			console.log("returned ddb: " + jsonString(data))
+			let artists = []
+			data.Items.forEach((artist) => {
+				artists.push(artist.sk.S)
+			})
+			res.send(artists)
+		}
+	})
+})
+
+//get all genres
+app.get('/genres', function(req, res) {
+	let params = {
+		ExpressionAttributeValues: {
+		 ":genre": {
+			 S: "genre"
+			}
+		}, 
+		KeyConditionExpression: "pk = :genre",
+		TableName: ddb_table_name
+	 };
+	dynamodb.query(params, function(ddb_err, data) {
+		if(ddb_err) {throw ddb_err}
+		else {
+			console.log("returned ddb: " + jsonString(data))
+			res.send(data.Items[0].genre)
+		}
+	})
+})
+
+var jsonString = function (obj) {
+	return JSON.stringify(obj, null, 2)
+}
 app.listen(PORT);
 
 console.log(`listening on port: ${PORT}`);
