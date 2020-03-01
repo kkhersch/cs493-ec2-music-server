@@ -1,8 +1,12 @@
 const express = require('express');
 const AWS = require('aws-sdk');
 const cors = require('cors');
+const {parse, stringify} = require('flatted/cjs');
 
 const app = express();
+app.use(express.json());
+
+
 app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -17,6 +21,7 @@ const s3 = new AWS.S3();
 const PORT = 1337;
 const BUCKET = 'cs493-aws-music-app'
 const dynamodb = new AWS.DynamoDB();
+const ddbClient = new AWS.DynamoDB.DocumentClient();
 const ddb_table_name = "music"
 
 app.get('/', function (req, res) {
@@ -28,6 +33,24 @@ var insert_song = function(song_obj, song_name, song_url) {
 }
 
 var song_obj = {}
+
+app.post('/save-user', function(req, res) {
+	let params = {
+		'TableName': 'users',
+		'Item': {
+			'email': req.body.email,
+			'fullName': req.body.fullName,
+			'uid': req.body.uid
+		}
+	}
+	
+	ddbClient.put(params, function(err, data) {
+		if(err) {console.log("users ddb err: " + err);}
+		else {
+			res.status(200).send("saved user sign in");
+		}
+	});
+});
 
 app.get('/songs', function(req, res) {
 	console.log("someone requested songs: ")
@@ -165,8 +188,13 @@ app.get('/genres', function(req, res) {
 	dynamodb.query(params, function(ddb_err, data) {
 		if(ddb_err) {throw ddb_err}
 		else {
-			console.log("returned ddb: " + jsonString(data))
-			res.send(data.Items[0].genre)
+			console.log("returned ddb: " + jsonString(data.Items[0]))
+			resData = {
+				dataType: "genre",
+				genres: data.Items[0].genre["SS"]
+			}
+			console.log("resData: " + JSON.stringify(resData, null, 2));
+			res.send(resData)
 		}
 	})
 })
