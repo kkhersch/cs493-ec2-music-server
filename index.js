@@ -34,24 +34,6 @@ var insert_song = function(song_obj, song_name, song_url) {
 
 var song_obj = {}
 
-app.post('/save-user', function(req, res) {
-	let params = {
-		'TableName': 'users',
-		'Item': {
-			'email': req.body.email,
-			'fullName': req.body.fullName,
-			'uid': req.body.uid
-		}
-	}
-	
-	ddbClient.put(params, function(err, data) {
-		if(err) {console.log("users ddb err: " + err);}
-		else {
-			res.status(200).send("saved user sign in");
-		}
-	});
-});
-
 app.get('/songs', function(req, res) {
 	console.log("someone requested songs: ")
 	let params = {
