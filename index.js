@@ -34,7 +34,7 @@ const ddb_table_name = "music"
 app.post('/play', function(req, res) {
 	let body = req.body
 	console.log(jsonString(body))
-	publisher.publish("songIsPlaying", body.join(' '));
+	publisher.publish("songIsPlaying", body.songData.join(' '));
 
 })
 
