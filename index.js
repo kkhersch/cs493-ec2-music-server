@@ -33,8 +33,11 @@ const ddb_table_name = "music"
 
 app.post('/play', function(req, res) {
 	let body = req.body
+	let artist = body[1];
+	let album = body[2];
+	let songName = body[3];
 	console.log(jsonString(body))
-	publisher.set("songIsPlaying", body);
+	publisher.set("songIsPlaying", songName);
 
 })
 
