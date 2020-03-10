@@ -2,18 +2,25 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const cors = require('cors');
 const {parse, stringify} = require('flatted/cjs');
+const redis = require('redis');
+
+const publisher = redis.createClient({
+	host: "cs493-reporter.klyav9.ng.0001.use1.cache.amazonaws.com",
+	port: 6379
+})
 
 const app = express();
 app.use(express.json());
 
-
 app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Credentials', true);
   next();
 });
+app.use(cors());
 AWS.config.region = 'us-east-1';
 
 const s3 = new AWS.S3();
@@ -23,6 +30,13 @@ const BUCKET = 'cs493-aws-music-app'
 const dynamodb = new AWS.DynamoDB();
 const ddbClient = new AWS.DynamoDB.DocumentClient();
 const ddb_table_name = "music"
+
+app.post('/play', function(req, res) {
+	let body = req.body
+	console.log(jsonString(body))
+	publisher.set("songIsPlaying", body);
+
+})
 
 app.get('/', function (req, res) {
   res.send('cs493 cloud dev music app for 24/7 lofi hip hop music to study and relax');
